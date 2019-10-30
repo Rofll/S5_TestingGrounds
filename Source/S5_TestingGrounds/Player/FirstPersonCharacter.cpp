@@ -71,7 +71,8 @@ void AFirstPersonCharacter::BeginPlay()
 	{
 		gun = GetWorld()->SpawnActor<AGun>(gunBlueprint);
 		gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-		//gun->set
+		gun->AnimInstance = Mesh1P->GetAnimInstance();
+		
 
 	}
 
@@ -86,6 +87,8 @@ void AFirstPersonCharacter::BeginPlay()
 		//VR_Gun->SetHiddenInGame(true, true);
 		Mesh1P->SetHiddenInGame(false, true);
 	}
+
+	InputComponent->BindAction("Fire", IE_Pressed, gun, &AGun::OnFire);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -101,7 +104,7 @@ void AFirstPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
-	//PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFirstPersonCharacter::OnFire);
+	
 
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
