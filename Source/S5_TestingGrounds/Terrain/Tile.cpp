@@ -16,7 +16,7 @@ ATile::ATile()
 void ATile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -26,24 +26,67 @@ void ATile::Tick(float DeltaTime)
 
 }
 
-void ATile::PlaceActors(TSubclassOf<AActor> toSpawn, int minSpawn, int maxSpawn)
+void ATile::PlaceActors(TSubclassOf<AActor> toSpawn, int minSpawn, int maxSpawn, float radius, float minScale, float maxScale)
 {
-	
-	FVector min = FVector(0, -2000, 0);
-	FVector max = FVector(4000, 2000, 0);
 
 	int numberToSpawn = FMath::RandRange(minSpawn, maxSpawn);
 
-	FBox bounds(min, max);
-
 	for (int32 i = 0; i < numberToSpawn; i++)
 	{
-		FVector spawnPoint = FMath::RandPointInBox(bounds);
-		AActor* spawned = GetWorld()->SpawnActor<AActor>(toSpawn);
+		FVector spawnPoint;
 
-	
-		spawned->SetActorRelativeLocation(spawnPoint);
-		spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		float randomScale = FMath::RandRange(minScale, maxScale);
+
+		bool found = FindEmptyLocation(spawnPoint, radius * randomScale);
+
+		if (found)
+		{
+			float randomRotation = FMath::RandRange(-180.f, 180.f);
+
+			PlaceActor(toSpawn, spawnPoint, randomRotation, randomScale);
+		}
 	}
+}
+
+bool ATile::CanSpawnAtLocation(FVector location, float radius)
+{
+	FHitResult hitResult;
+
+	FVector globalLocation = ActorToWorld().TransformPosition(location);
+
+	bool hasHit = GetWorld()->SweepSingleByChannel(hitResult, globalLocation, globalLocation + FVector(0,0,.001f), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel2, FCollisionShape::MakeSphere(radius));
+
+	return !hasHit;
+}
+
+bool ATile::FindEmptyLocation(FVector& outLocation, float radius)
+{
+	FVector min = FVector(0, -2000, 0);
+	FVector max = FVector(4000, 2000, 0);
+	FBox bounds(min, max);
+
+	const int MAX_ATTEMPS = 100;
+
+	for (int i = 0; i < MAX_ATTEMPS; i++)
+	{
+		FVector candidatePoint = FMath::RandPointInBox(bounds);
+
+		if (CanSpawnAtLocation(candidatePoint, radius))
+		{
+			outLocation = candidatePoint;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void ATile::PlaceActor(TSubclassOf<AActor> toSpawn, FVector spawnPoint, float rotation, float scale)
+{
+	AActor* spawned = GetWorld()->SpawnActor<AActor>(toSpawn);
+	spawned->SetActorRelativeLocation(spawnPoint);
+	spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+	spawned->SetActorRotation(FRotator(0, rotation, 0));
+	spawned->SetActorScale3D(FVector(scale, scale, scale));
 }
 

@@ -16,7 +16,7 @@ public:
 	ATile();
 
 	UFUNCTION(BlueprintCallable, Category = "Tile")
-	void PlaceActors(TSubclassOf<AActor> toSpawn, int minSpawn, int maxSpawn);
+	void PlaceActors(TSubclassOf<AActor> toSpawn, int minSpawn = 1, int maxSpawn = 1, float radius = 500, float minScale = 1, float maxScale = 1);
 
 protected:
 	// Called when the game starts or when spawned
@@ -25,5 +25,11 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+	
+	bool FindEmptyLocation(FVector& outLocation ,float radius);
+	void PlaceActor(TSubclassOf<AActor> toSpawn, FVector spawnPoint, float rotation, float scale);
+	bool CanSpawnAtLocation(FVector location, float radius);
 
 };
