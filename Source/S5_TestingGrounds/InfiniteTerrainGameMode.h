@@ -14,8 +14,16 @@ class S5_TESTINGGROUNDS_API AInfiniteTerrainGameMode : public AS5_TestingGrounds
 	GENERATED_BODY()
 
 public:
+	AInfiniteTerrainGameMode();
+
 	UFUNCTION(BlueprintCallable, Category = "Bounds Pool")
 	void PopulateBoundsVolumePool();
+	
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pool")
+	class UActorPool* navMeshBoundsVolumePool;
+
 
 private:
 	void AddToPoll(class ANavMeshBoundsVolume* volumeToAdd);

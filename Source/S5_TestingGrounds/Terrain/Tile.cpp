@@ -4,6 +4,7 @@
 #include "Tile.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "ActorPool.h"
 
 // Sets default values
 ATile::ATile()
@@ -25,6 +26,13 @@ void ATile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ATile::SetPool(UActorPool* inPool)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[%s] SettingPool %s"), *(this->GetName()), *(inPool->GetName()));
+
+	pool = inPool;
 }
 
 void ATile::PlaceActors(TSubclassOf<AActor> toSpawn, int minSpawn, int maxSpawn, float radius, float minScale, float maxScale)
