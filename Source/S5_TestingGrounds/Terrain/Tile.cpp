@@ -5,12 +5,15 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "ActorPool.h"
+#include "NavigationSystem.h"
 
 // Sets default values
 ATile::ATile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	navigationBoundsOffset = FVector(2000, 0, 0);
 
 	minExtent = FVector(0, -2000, 0);
 	maxExtent = FVector(4000, 2000, 0);
@@ -56,7 +59,10 @@ void ATile::PositionNavMeshBoundsVolume()
 
 	UE_LOG(LogTemp, Warning, TEXT("[%s]Checked out: {%s}"), *GetName(), *navMeshBoundsVolume->GetName());
 
-	navMeshBoundsVolume->SetActorLocation(GetActorLocation());
+	navMeshBoundsVolume->SetActorLocation(GetActorLocation() + navigationBoundsOffset);
+
+	FNavigationSystem::Build(*GetWorld());
+	
 }
 
 void ATile::PlaceActors(TSubclassOf<AActor> toSpawn, int minSpawn, int maxSpawn, float radius, float minScale, float maxScale)
