@@ -67,6 +67,28 @@ void ATile::PositionNavMeshBoundsVolume()
 
 void ATile::PlaceActors(TSubclassOf<AActor> toSpawn, int minSpawn, int maxSpawn, float radius, float minScale, float maxScale)
 {
+	TArray<FSpawnPosition> spawnPositions = RandomSpawnPositions(minSpawn, maxSpawn, radius, minScale, maxScale);
+
+	for (FSpawnPosition spawnPosition : spawnPositions)
+	{
+		PlaceActor(toSpawn, spawnPosition);
+	}
+}
+
+bool ATile::CanSpawnAtLocation(FVector location, float radius)
+{
+	FHitResult hitResult;
+
+	FVector globalLocation = ActorToWorld().TransformPosition(location);
+
+	bool hasHit = GetWorld()->SweepSingleByChannel(hitResult, globalLocation, globalLocation + FVector(0,0,.001f), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel2, FCollisionShape::MakeSphere(radius));
+
+	return !hasHit;
+}
+
+TArray<FSpawnPosition> ATile::RandomSpawnPositions(int minSpawn, int maxSpawn, float radius, float minScale, float maxScale)
+{
+	TArray<FSpawnPosition> spawnPositions;
 
 	int numberToSpawn = FMath::RandRange(minSpawn, maxSpawn);
 
@@ -82,20 +104,11 @@ void ATile::PlaceActors(TSubclassOf<AActor> toSpawn, int minSpawn, int maxSpawn,
 		{
 			float randomRotation = FMath::RandRange(-180.f, 180.f);
 
-			PlaceActor(toSpawn, spawnPoint, randomRotation, randomScale);
+			spawnPositions.Add(FSpawnPosition(spawnPoint, radius, randomScale));
 		}
 	}
-}
 
-bool ATile::CanSpawnAtLocation(FVector location, float radius)
-{
-	FHitResult hitResult;
-
-	FVector globalLocation = ActorToWorld().TransformPosition(location);
-
-	bool hasHit = GetWorld()->SweepSingleByChannel(hitResult, globalLocation, globalLocation + FVector(0,0,.001f), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel2, FCollisionShape::MakeSphere(radius));
-
-	return !hasHit;
+	return spawnPositions;
 }
 
 bool ATile::FindEmptyLocation(FVector& outLocation, float radius)
@@ -118,12 +131,12 @@ bool ATile::FindEmptyLocation(FVector& outLocation, float radius)
 	return false;
 }
 
-void ATile::PlaceActor(TSubclassOf<AActor> toSpawn, FVector spawnPoint, float rotation, float scale)
+void ATile::PlaceActor(TSubclassOf<AActor> toSpawn, FSpawnPosition spawnPosition)
 {
 	AActor* spawned = GetWorld()->SpawnActor<AActor>(toSpawn);
-	spawned->SetActorRelativeLocation(spawnPoint);
+	spawned->SetActorRelativeLocation(spawnPosition.location);
 	spawned->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
-	spawned->SetActorRotation(FRotator(0, rotation, 0));
-	spawned->SetActorScale3D(FVector(scale, scale, scale));
+	spawned->SetActorRotation(FRotator(0, spawnPosition.rotation, 0));
+	spawned->SetActorScale3D(FVector(spawnPosition.scale, spawnPosition.scale, spawnPosition.scale));
 }
 
