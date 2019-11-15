@@ -23,6 +23,13 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type endPlayReason) override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
+	FVector minExtent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
+	FVector maxExtent;
 
 public:	
 	// Called every frame
@@ -32,6 +39,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Pool")
 	void SetPool(UActorPool* inPool);
 
+	
+
 
 private:
 	
@@ -39,5 +48,7 @@ private:
 	void PlaceActor(TSubclassOf<AActor> toSpawn, FVector spawnPoint, float rotation, float scale);
 	bool CanSpawnAtLocation(FVector location, float radius);
 	UActorPool* pool;
+	void PositionNavMeshBoundsVolume();
+	AActor* navMeshBoundsVolume;
 
 };
