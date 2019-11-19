@@ -77,9 +77,10 @@ public:
 private:
 	
 	bool FindEmptyLocation(FVector& outLocation ,float radius);
-	TArray<FSpawnPosition> RandomSpawnPositions(int minSpawn, int maxSpawn, float radius, float minScale, float maxScale);
+	template<class T>
+	void RandomlyPlaceActors(TSubclassOf<T> toSpawn, int minSpawn, int maxSpawn, float radius, float minScale, float maxScale);
 	void PlaceActor(TSubclassOf<AActor> toSpawn, FSpawnPosition spawnPosition);
-	void PlaceAIPawn(TSubclassOf<APawn> toSpawn, FSpawnPosition spawnPosition);
+	void PlaceActor(TSubclassOf<APawn> toSpawn, FSpawnPosition spawnPosition);
 	bool CanSpawnAtLocation(FVector location, float radius);
 	UActorPool* pool;
 	void PositionNavMeshBoundsVolume();
